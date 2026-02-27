@@ -9,9 +9,17 @@ exports.signup = (req, res, next) => {
         email: req.body.email,
         password: hash
       });
-      return user.save();
+      return user.save()
+        .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
+        .catch((error) => {
+          /* email déjà existant */
+          if (error.code === 11000 || error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Email déjà utilisé' });
+          }
+          /* autre erreur = serveur */
+          return res.status(500).json({ error });
+        });
     })
-    .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
     .catch((error) => res.status(500).json({ error }));
 };
 

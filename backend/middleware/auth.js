@@ -2,17 +2,16 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ message: 'Missing Authorization header' });
-    }
-
-    const token = authHeader.split(' ')[1]; // "Bearer <token>"
+    const token = req.headers.authorization.split(' ')[1];
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.userId;
 
-    req.auth = { userId: decodedToken.userId };
+    req.auth = {
+      userId: userId
+    };
+
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ error });
   }
 };
