@@ -80,12 +80,13 @@ code {
 }
 
 .backArrow {
-  display: block;
-  margin-bottom: 5em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
   color: #796157;
-  font-family: "DM Sans", sans-serif;
-
   text-decoration: none;
+  font-size: 16px;
 }
 
 h1 {

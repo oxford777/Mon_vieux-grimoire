@@ -66,7 +66,9 @@ function Book() {
   const bookContent = !loading && !book.delete ? (
     <div>
       <div className={styles.Book}>
-        <div className={styles.BookImage} style={{ backgroundImage: `url("${book.imageUrl}")` }} />
+        <div className={styles.BookImage}>
+          <img src={book.imageUrl} alt={book.title} />
+        </div>
         <div className={styles.BookContent}>
           {book?.userId === connectedUser?.userId ? (
             <div className={styles.Owner}>
@@ -80,6 +82,7 @@ function Book() {
             </div>
           ) : null}
           <BookInfo book={book} />
+          {connectedUser?.userId && (
           <BookRatingForm
             userRated={userRated}
             userId={connectedUser?.userId}
@@ -88,6 +91,7 @@ function Book() {
             setBook={setBook}
             id={book.id}
           />
+          )}
         </div>
       </div>
       <hr />
@@ -107,7 +111,9 @@ function Book() {
 
   return (
     <div className="content-container">
-      <BackArrow />
+      <div className={styles.BackArrowWrapper}>
+        <BackArrow />
+      </div>
       {loading ? loadingContent : null}
       <div className={styles.BookContainer}>
         {bookContent}

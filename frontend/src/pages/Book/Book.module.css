@@ -48,21 +48,31 @@
     margin-bottom: 75px;
 }
 .BookImage {
-    width: calc(40% - 80px);
-    background-position: center;
-    background-size: cover;
+    width: 40%;
+    height: 540px;
     margin-right: 80px;
     margin-left: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
-.Book img {
-    width: 40%;
-    padding-right: 80px;
-    padding-left: 120px;
+
+.BookImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
+
 .BookContent {
     width: 60%;
     display: flex;
     flex-direction: column;
+}
+
+.BackArrowWrapper {
+  margin-bottom: 20px;
 }
 
 .Owner {

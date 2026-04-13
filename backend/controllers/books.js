@@ -77,7 +77,7 @@ exports.updateBook = (req, res, next) => {
       }
 
       if (book.userId !== req.auth.userId) {
-        return res.status(403).json({ message: 'unauthorized request' });
+        return res.status(403).json({ message: '403: unauthorized request' });
       }
 
       /* CAS 1 : PAS de nouvelle image */
@@ -88,7 +88,7 @@ exports.updateBook = (req, res, next) => {
       );
     }
 
-    /* CAS 2 : Nouvelle image → optimisation Sharp */
+    /* CAS 2 : Nouvelle image avec optimisation Sharp */
       const originalFilename = req.file.filename;
       const originalPath = path.join('images', originalFilename);
 
@@ -133,7 +133,7 @@ exports.deleteBook = (req, res, next) => {
       }
 
       if (book.userId !== req.auth.userId) {
-        return res.status(403).json({ message: 'unauthorized request' });
+        return res.status(403).json({ message: '403: unauthorized request' });
       }
 
       const filename = book.imageUrl.split('/images/')[1];
@@ -156,7 +156,7 @@ exports.rateBook = (req, res) => {
 
   /* userId du body doit correspondre au user authentifié */
   if (userId !== req.auth.userId) {
-    return res.status(403).json({ message: 'unauthorized request' });
+    return res.status(403).json({ message: '403: unauthorized request' });
   }
 
   const grade = Number(rating);
@@ -180,7 +180,7 @@ exports.rateBook = (req, res) => {
 
       /* calcul moyenne de notes */
       const sum = book.ratings.reduce((acc, r) => acc + r.grade, 0);
-      book.averageRating = sum / book.ratings.length;
+      book.averageRating = Math.round((sum / book.ratings.length) * 10) / 10;
 
       return book.save();
     })
