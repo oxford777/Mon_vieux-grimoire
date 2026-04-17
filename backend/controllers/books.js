@@ -3,7 +3,7 @@ const fs = require('fs');
 const sharp = require('sharp');
 const path = require('path');
 
-exports.createBook = (req, res, next) => {
+exports.createBook = (req, res) => {
   const bookObject = JSON.parse(req.body.book);
 
   delete bookObject._id;
@@ -22,13 +22,14 @@ exports.createBook = (req, res, next) => {
     .then(() => {
       fs.unlink(originalPath, () => {}); /* supprime l'image non optimisée */
 
-    const book = new Book({
-      ...bookObject,
-      userId: req.auth.userId,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`,
-      ratings: [],
-      averageRating: 0
-    });
+
+const book = new Book({
+  ...bookObject,
+  userId: req.auth.userId,
+  imageUrl: `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`,
+  ratings: [],
+  averageRating:0
+});
 
     return book.save();
   })
@@ -36,13 +37,13 @@ exports.createBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 };
 
-exports.getAllBooks = (req, res) => {
+exports.getAllBooks = (_req, res) => {
   Book.find()
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.getBestRatingBooks = (req, res) => {
+exports.getBestRatingBooks = (_req, res) => {
   Book.find()
     .sort({ averageRating: -1 })
     .limit(3)
@@ -54,14 +55,14 @@ exports.getOneBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (!book) {
-        return res.status(404).json({ message: 'Livre non trouvé !' });
+        return res.status(404).end();
       }
       return res.status(200).json(book);
     })
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.updateBook = (req, res, next) => {
+exports.updateBook = (req, res) => {
   const bookObject = req.file ? 
       JSON.parse(req.body.book)
     : { ...req.body };
@@ -73,7 +74,7 @@ exports.updateBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id }) 
   .then((book) => {
       if (!book) {
-        return res.status(404).json({ message: 'Livre non trouvé !' });
+        return res.status(404).end();
       }
 
       if (book.userId !== req.auth.userId) {
@@ -125,11 +126,11 @@ exports.updateBook = (req, res, next) => {
   });
 };
 
-exports.deleteBook = (req, res, next) => {
+exports.deleteBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (!book) {
-        return res.status(404).json({ message: 'Livre non trouvé !' });
+        return res.status(404).end();
       }
 
       if (book.userId !== req.auth.userId) {
@@ -137,8 +138,9 @@ exports.deleteBook = (req, res, next) => {
       }
 
       const filename = book.imageUrl.split('/images/')[1];
+      const imagePath = path.join('images', filename);
 
-    fs.unlink(`images/${filename}`, () => {
+    fs.unlink(imagePath, () => {
       Book.deleteOne({ _id: req.params.id })
         .then(() => {
           res.status(200).json({ message: 'Livre supprimé !' });
@@ -162,18 +164,18 @@ exports.rateBook = (req, res) => {
   const grade = Number(rating);
 
   if (Number.isNaN(grade) || grade < 0 || grade > 5) {
-    return res.status(400).json({ message: 'La note doit être comprise entre 0 et 5' });
+    return res.status(400).end();
   }
 
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (!book) {
-        return res.status(404).json({ message: 'Livre non trouvé !' });
+        return res.status(404).end();
       }
 
       const alreadyRated = book.ratings.some((r) => r.userId === userId);
       if (alreadyRated) {
-        return res.status(400).json({ message: 'Vous avez déjà noté ce livre' });
+        return res.status(400).end();
       }
 
       book.ratings.push({ userId, grade });

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-exports.signup = (req, res, next) => {
+exports.signup = (req, res) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
       const user = new User({
@@ -14,7 +14,7 @@ exports.signup = (req, res, next) => {
         .catch((error) => {
           /* email déjà existant */
           if (error.code === 11000 || error.name === 'ValidationError') {
-            return res.status(400).json({ message: 'Email déjà utilisé' });
+            return res.status(400).json({ message: 'Email non valide' });
           }
           /* autre erreur = serveur */
           return res.status(500).json({ error });
@@ -23,7 +23,7 @@ exports.signup = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-exports.login = (req, res, next) => {
+exports.login = (req, res) => {
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (user === null) {
